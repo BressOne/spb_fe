@@ -69,6 +69,7 @@ export default () => {
     <Box
       bg={useColorModeValue("gray.50", "gray.900")}
       color={useColorModeValue("gray.700", "gray.200")}
+      height={"64px"}
     >
       <Container
         as={Stack}

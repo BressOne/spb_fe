@@ -1,3 +1,5 @@
-export default function Restaurant() {
-  return <>123</>;
+import Restaurant from "@/components/restaurant/";
+
+export default function () {
+  return <Restaurant />;
 }

@@ -21,12 +21,14 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
 } from "@chakra-ui/icons";
-import { useRouter } from "next/router";
+import { useContext } from "react";
+import { IdentityContext } from "@/contexts/identity";
 
 export default function WithSubnavigation() {
   const { isOpen, onToggle } = useDisclosure();
+  const { destroyUser, userData } = useContext(IdentityContext);
 
-  return (
+  return userData ? (
     <Box>
       <Flex
         bg={useColorModeValue("white", "gray.800")}
@@ -71,6 +73,7 @@ export default function WithSubnavigation() {
             fontWeight={400}
             variant={"link"}
             href={"#"}
+            onClick={() => destroyUser()}
           >
             Log out
           </Button>
@@ -81,7 +84,7 @@ export default function WithSubnavigation() {
         <MobileNav />
       </Collapse>
     </Box>
-  );
+  ) : null;
 }
 
 const DesktopNav = () => {
@@ -253,7 +256,7 @@ const NAV_ITEMS: Array<NavItem> = [
   },
   {
     label: "Restaurant",
-    href: "#",
+    href: "/restaurant",
   },
   {
     label: "Reservations",

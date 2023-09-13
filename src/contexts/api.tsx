@@ -1,12 +1,43 @@
 import React from "react";
 import axios from "axios";
 
-const API_URL = "";
+const API_URL = "http://localhost:3001";
 
 const dummy = () => new Promise((resolve) => resolve(true));
 
-export const ApiContext = React.createContext({
-  getMenuSections: dummy,
+export type Timeframe = {
+  start: string;
+  end: string;
+};
+
+export type WorkingHours = {
+  monday: Timeframe;
+  tuesday: Timeframe;
+  wednesday: Timeframe;
+  thursday: Timeframe;
+  friday: Timeframe;
+  saturday: Timeframe;
+  sunday: Timeframe;
+};
+
+export type Restaurant = {
+  id: string;
+  name: string;
+  workingHours: WorkingHours;
+  timezoneOffsetMinutes: number;
+};
+
+export const ApiContext = React.createContext<{
+  getRestaurant: (id: string) => Promise<Restaurant | null>;
+  editRestaurant: (
+    id: string,
+    data: Omit<Restaurant, "id">
+  ) => Promise<Restaurant | null>;
+  login: () => Promise<any>;
+}>({
+  getRestaurant: () => new Promise((resolve) => resolve(null)),
+  editRestaurant: () => new Promise((resolve) => resolve(null)),
+  login: dummy,
 });
 
 export const ApiProvider = ({ children }: { children?: React.ReactNode }) => {
@@ -40,12 +71,18 @@ export const ApiProvider = ({ children }: { children?: React.ReactNode }) => {
     const { data } = await handleError(instance.delete(`${API_URL}${path}`));
     return data;
   };
-  const getMenuSections = () => get("/api/basic/MenuSections");
+
+  const login = () => get("/login");
+  const getRestaurant = (id: string) => get(`/restaurant/${id}`);
+  const editRestaurant = (id: string, data: Omit<Restaurant, "id">) =>
+    patch(`/restaurant/${id}`, data);
 
   return (
     <ApiContext.Provider
       value={{
-        getMenuSections: getMenuSections,
+        getRestaurant,
+        editRestaurant,
+        login,
       }}
     >
       {children}

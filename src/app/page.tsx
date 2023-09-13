@@ -1,3 +1,5 @@
+import Login from "@/components/login";
+
 export default function App() {
-  return <>123</>;
+  return <Login />;
 }
