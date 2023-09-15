@@ -1,7 +1,8 @@
 "use client";
 
-import { ApiContext, Restaurant, WorkingHours } from "@/contexts/api";
+import { ApiContext, Restaurant, Table, WorkingHours } from "@/contexts/api";
 import { IdentityContext } from "@/contexts/identity";
+import { DeleteIcon } from "@chakra-ui/icons";
 import {
   Heading,
   Avatar,
@@ -14,7 +15,7 @@ import {
   Button,
   useColorModeValue,
   Skeleton,
-  Table,
+  Table as TableComponent,
   TableCaption,
   TableContainer,
   Tbody,
@@ -23,9 +24,11 @@ import {
   Th,
   Thead,
   Tr,
+  IconButton,
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
-import RestaurantModal from "./editRestaurantModal";
+import DeleteConfirmation from "./deleteTableModal";
+import AddTableModal from "./addTableModal";
 
 export const week: Array<keyof WorkingHours> = [
   "monday",
@@ -39,50 +42,52 @@ export const week: Array<keyof WorkingHours> = [
 
 const TableHeading = () => (
   <Tr>
-    <Th>Day of the week</Th>
-    <Th>Open</Th>
-    <Th>Close</Th>
+    <Th>#</Th>
+    <Th>Name</Th>
+    <Th>Action</Th>
   </Tr>
 );
 
-const getOpenHoursList = (rest: Restaurant) => {
-  return week.map((w) => {
-    const timeframe = rest.workingHours[w];
-    return (
-      <Tr key={w}>
-        <Td>{w.toUpperCase()}</Td>
-        <Td>{timeframe.start}</Td>
-        <Td>{timeframe.end}</Td>
-      </Tr>
-    );
-  });
-};
-
 export default function Restaurant() {
-  const { getRestaurant } = useContext(ApiContext);
+  const { getTables } = useContext(ApiContext);
   const { userData } = useContext(IdentityContext);
-  const [rest, setRest] = useState<Restaurant | undefined>(undefined);
-  const [editModalIsOpen, setEditModalIsOpen] = useState<boolean>(false);
+  const [tables, setTables] = useState<Table[]>([]);
+
+  const [deletionTarget, setDeletionTarget] = useState<string | undefined>(
+    undefined
+  );
+  const [addTableModalIsOpen, setAddTableModalIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (userData) {
-      getRestaurant(userData.restaurantOrigin).then((data) => {
-        setRest(data ? data : undefined);
+      getTables(userData.restaurantOrigin).then((data) => {
+        setTables(data);
       });
     }
   }, [userData]);
 
-  return rest ? (
+  return tables ? (
     <Center py={6} display={"flex"} flexDirection={"column"}>
-      {editModalIsOpen && (
-        <RestaurantModal
-          restaurant={rest}
+      {addTableModalIsOpen && (
+        <AddTableModal
           onClose={async (forceReload?: boolean) => {
-            if (forceReload && userData) {
-              const data = await getRestaurant(userData.restaurantOrigin);
-              setRest(data ? data : undefined);
+            if (forceReload) {
+              const data = await getTables(userData!.restaurantOrigin);
+              setTables(data);
             }
-            setEditModalIsOpen(false);
+            setAddTableModalIsOpen(false);
+          }}
+        />
+      )}
+      {deletionTarget && (
+        <DeleteConfirmation
+          tableId={deletionTarget}
+          onClose={async (forceReload?: boolean) => {
+            if (forceReload) {
+              const data = await getTables(userData!.restaurantOrigin);
+              setTables(data);
+            }
+            setDeletionTarget(undefined);
           }}
         />
       )}
@@ -115,39 +120,47 @@ export default function Restaurant() {
         </Flex>
 
         <Flex justify={"center"} p={6} direction={"column"} align={"center"}>
-          <Stack spacing={0} align={"center"} mb={5}>
-            <Heading fontSize={"2xl"} fontWeight={500} fontFamily={"body"}>
-              {rest.name}
-            </Heading>
-          </Stack>
-
           <Stack spacing={0} align={"center"}>
-            <Text fontWeight={600}>Working hours</Text>
-            <Text fontWeight={600}>
-              Restaurant time offset is{" "}
-              {rest.timezoneOffsetMinutes > 0 ? "+" : "-"}
-              {rest.timezoneOffsetMinutes / 60} hour(s)
-            </Text>
-            <Text fontWeight={600}>
-              And your current time offset is{" "}
-              {new Date().getTimezoneOffset() / 60} hour(s)
-            </Text>
+            <Text fontWeight={600}>Tables</Text>
             <TableContainer>
-              <Table variant="simple">
+              <TableComponent variant="simple">
                 <TableCaption>
-                  Your awesome {rest.name} restaurants open hours
+                  Your awesome restaurants list of tables
                 </TableCaption>
                 <Thead>
                   <TableHeading />
                 </Thead>
-                <Tbody>{getOpenHoursList(rest)}</Tbody>
+                <Tbody>
+                  {tables.map((t, i) => {
+                    return (
+                      <Tr>
+                        <Th>{i + 1}</Th>
+                        <Th>{t.id}</Th>
+                        <Th>
+                          <IconButton
+                            variant="outline"
+                            colorScheme="teal"
+                            aria-label="Delete the table"
+                            fontSize="20px"
+                            icon={
+                              <DeleteIcon
+                                onClick={() => {
+                                  setDeletionTarget(t.id);
+                                }}
+                              />
+                            }
+                          />
+                        </Th>
+                      </Tr>
+                    );
+                  })}
+                </Tbody>
                 <Tfoot>
                   <TableHeading />
                 </Tfoot>
-              </Table>
+              </TableComponent>
             </TableContainer>
           </Stack>
-
           <Button
             marginTop={"15px"}
             maxW={"120px"}
@@ -159,9 +172,9 @@ export default function Restaurant() {
               transform: "translateY(-2px)",
               boxShadow: "lg",
             }}
-            onClick={() => setEditModalIsOpen(true)}
+            onClick={() => setAddTableModalIsOpen(true)}
           >
-            Edit
+            Add a new table
           </Button>
         </Flex>
       </Box>

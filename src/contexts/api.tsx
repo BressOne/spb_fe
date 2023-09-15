@@ -27,6 +27,10 @@ export type Restaurant = {
   timezoneOffsetMinutes: number;
 };
 
+export type Table = {
+  id: string;
+};
+
 export const ApiContext = React.createContext<{
   getRestaurant: (id: string) => Promise<Restaurant | null>;
   editRestaurant: (
@@ -34,9 +38,15 @@ export const ApiContext = React.createContext<{
     data: Omit<Restaurant, "id">
   ) => Promise<Restaurant | null>;
   login: () => Promise<any>;
+  getTables: (id: string) => Promise<Table[] | []>;
+  removeTable: (tableId: string, restaurantId: string) => Promise<Table | null>;
+  addTable: (restaurantId: string) => Promise<Table | null>;
 }>({
   getRestaurant: () => new Promise((resolve) => resolve(null)),
   editRestaurant: () => new Promise((resolve) => resolve(null)),
+  getTables: () => new Promise((resolve) => resolve([])),
+  removeTable: () => new Promise((resolve) => resolve(null)),
+  addTable: (restaurantId: string) => new Promise((resolve) => resolve(null)),
   login: dummy,
 });
 
@@ -73,7 +83,14 @@ export const ApiProvider = ({ children }: { children?: React.ReactNode }) => {
   };
 
   const login = () => get("/login");
-  const getRestaurant = (id: string) => get(`/restaurant/${id}`);
+  const getRestaurant = (restaurantId: string) =>
+    get(`/restaurant/${restaurantId}`);
+  const getTables = (restaurantId: string) =>
+    get(`/restaurant/${restaurantId}/tables`);
+  const addTable = (restaurantId: string) =>
+    post(`/restaurant/${restaurantId}/table`, {});
+  const removeTable = (tableId: string, restaurantId: string) =>
+    remove(`/restaurant/${restaurantId}/table/${tableId}`);
   const editRestaurant = (id: string, data: Omit<Restaurant, "id">) =>
     patch(`/restaurant/${id}`, data);
 
@@ -83,6 +100,9 @@ export const ApiProvider = ({ children }: { children?: React.ReactNode }) => {
         getRestaurant,
         editRestaurant,
         login,
+        getTables,
+        removeTable,
+        addTable,
       }}
     >
       {children}

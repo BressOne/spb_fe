@@ -18,10 +18,10 @@ import { redirect } from "next/navigation";
 export default function Login() {
   const { login } = useContext(ApiContext);
   const { setUserData, userData } = useContext(IdentityContext);
-  
+
   useEffect(() => {
     if (userData) {
-      redirect("/home");
+      redirect("/restaurant");
     }
   }, [userData]);
 
