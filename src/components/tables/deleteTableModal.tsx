@@ -22,7 +22,7 @@ const DeleteConfirmation = ({ onClose, tableId }: Props) => {
   const { removeTable } = useContext(ApiContext);
   const { userData } = useContext(IdentityContext);
 
-  const [isSubmiting, setIsSubmitting] = useState(false);
+  const [isSubmiting, setIsSubmiting] = useState(false);
 
   return (
     <Modal isOpen={true} onClose={() => onClose(false)}>
@@ -41,7 +41,7 @@ const DeleteConfirmation = ({ onClose, tableId }: Props) => {
             colorScheme={"red"}
             mr={3}
             onClick={async () => {
-              setIsSubmitting(true);
+              setIsSubmiting(true);
               await removeTable(tableId, userData!.restaurantOrigin);
               onClose(true);
             }}

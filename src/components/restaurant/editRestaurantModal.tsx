@@ -1,4 +1,4 @@
-import { ApiContext, Restaurant, Timeframe } from "@/contexts/api";
+import { ApiContext, Restaurant, Timeframe, week } from "@/contexts/api";
 import { DeleteIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -16,7 +16,6 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
-import { week } from "./index";
 
 type Props = {
   restaurant: Restaurant;
@@ -34,7 +33,7 @@ const timeframeIsInvalid = ({ start, end }: Timeframe) =>
 const RestaurantModal = ({ restaurant, onClose }: Props) => {
   const { editRestaurant } = useContext(ApiContext);
   const [modalData, setModalData] = useState({ ...restaurant });
-  const [isSubmiting, setIsSubmitting] = useState(false);
+  const [isSubmiting, setIsSubmiting] = useState(false);
   const isFormInValid =
     nameIsInvalid(modalData.name) ||
     offsetIsInvalid(modalData.timezoneOffsetMinutes) ||
@@ -137,7 +136,7 @@ const RestaurantModal = ({ restaurant, onClose }: Props) => {
             mr={3}
             onClick={async () => {
               if (isFormInValid) {
-                setIsSubmitting(true);
+                setIsSubmiting(true);
                 const { name, workingHours, timezoneOffsetMinutes } = modalData;
                 await editRestaurant(modalData.id, {
                   name,

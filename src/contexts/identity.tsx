@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+"use client";
 import React, { useEffect, useState } from "react";
 
 export type Identity = {
@@ -29,7 +29,6 @@ export const IdentityProvider = ({
   const destroyUser = () => {
     setData(undefined);
     window.localStorage.removeItem("context");
-    redirect("/");
   };
 
   useEffect(() => {

@@ -1,23 +1,31 @@
 import React from "react";
 import axios from "axios";
 
-const API_URL = "http://localhost:3001";
-
-const dummy = () => new Promise((resolve) => resolve(true));
+const API_URL = process.env.API_URL || "http://localhost:3001";
 
 export type Timeframe = {
   start: string;
   end: string;
 };
 
+export const week: Array<keyof WorkingHours> = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+];
+
 export type WorkingHours = {
+  sunday: Timeframe;
   monday: Timeframe;
   tuesday: Timeframe;
   wednesday: Timeframe;
   thursday: Timeframe;
   friday: Timeframe;
   saturday: Timeframe;
-  sunday: Timeframe;
 };
 
 export type Restaurant = {
@@ -29,6 +37,21 @@ export type Restaurant = {
 
 export type Table = {
   id: string;
+  name: string;
+};
+
+export type ReservationMetadata = {
+  personsToServe: number;
+  startTime: Date;
+  endTime: Date;
+  notes?: string;
+};
+
+export type Reservation = {
+  id: string;
+  tableId: string;
+  guestName: string;
+  meta: ReservationMetadata;
 };
 
 export const ApiContext = React.createContext<{
@@ -37,17 +60,45 @@ export const ApiContext = React.createContext<{
     id: string,
     data: Omit<Restaurant, "id">
   ) => Promise<Restaurant | null>;
-  login: () => Promise<any>;
-  getTables: (id: string) => Promise<Table[] | []>;
+  login: ({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }) => Promise<any>;
+  getTables: (id: string) => Promise<Table[]>;
+  getTable: (tableId: string, restaurantId: string) => Promise<Table | null>;
   removeTable: (tableId: string, restaurantId: string) => Promise<Table | null>;
   addTable: (restaurantId: string) => Promise<Table | null>;
+  getRestaurantsReservations: (id: string) => Promise<Reservation[]>;
+  getTableReservations: (
+    tableId: string,
+    restaurantId: string
+  ) => Promise<Reservation[]>;
+  removeReservation: (data: {
+    reservationId: string;
+    tableId: string;
+    restaurantId: string;
+  }) => Promise<Reservation | null>;
+
+  addReservation: (
+    tableId: string,
+    restaurantId: string,
+    body: Pick<Reservation, "guestName" | "meta">
+  ) => Promise<Reservation | null>;
 }>({
   getRestaurant: () => new Promise((resolve) => resolve(null)),
   editRestaurant: () => new Promise((resolve) => resolve(null)),
   getTables: () => new Promise((resolve) => resolve([])),
+  getTable: () => new Promise((resolve) => resolve(null)),
   removeTable: () => new Promise((resolve) => resolve(null)),
-  addTable: (restaurantId: string) => new Promise((resolve) => resolve(null)),
-  login: dummy,
+  addTable: () => new Promise((resolve) => resolve(null)),
+  login: () => new Promise((resolve) => resolve(null)),
+  getRestaurantsReservations: () => new Promise((resolve) => resolve([])),
+  getTableReservations: () => new Promise((resolve) => resolve([])),
+  removeReservation: () => new Promise((resolve) => resolve(null)),
+  addReservation: () => new Promise((resolve) => resolve(null)),
 });
 
 export const ApiProvider = ({ children }: { children?: React.ReactNode }) => {
@@ -82,17 +133,43 @@ export const ApiProvider = ({ children }: { children?: React.ReactNode }) => {
     return data;
   };
 
-  const login = () => get("/login");
+  const login = ({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }) => post("/login", { username, password });
   const getRestaurant = (restaurantId: string) =>
     get(`/restaurant/${restaurantId}`);
   const getTables = (restaurantId: string) =>
     get(`/restaurant/${restaurantId}/tables`);
+  const getTable = (tableId: string, restaurantId: string) =>
+    get(`/restaurant/${restaurantId}/table/${tableId}`);
   const addTable = (restaurantId: string) =>
     post(`/restaurant/${restaurantId}/table`, {});
   const removeTable = (tableId: string, restaurantId: string) =>
     remove(`/restaurant/${restaurantId}/table/${tableId}`);
   const editRestaurant = (id: string, data: Omit<Restaurant, "id">) =>
     patch(`/restaurant/${id}`, data);
+  const getRestaurantsReservations = (restaurantId: string) =>
+    get(`/restaurant/${restaurantId}/reservations`);
+  const getTableReservations = (tableId: string, restaurantId: string) =>
+    get(`/restaurant/${restaurantId}/table/${tableId}/reservations`);
+  const removeReservation = ({
+    reservationId,
+    tableId,
+    restaurantId,
+  }: {
+    reservationId: string;
+    tableId: string;
+    restaurantId: string;
+  }) =>
+    remove(
+      `/restaurant/${restaurantId}/table/${tableId}/reservation/${reservationId}`
+    );
+  const addReservation = (tableId: string, restaurantId: string, body: any) =>
+    post(`/restaurant/${restaurantId}/table/${tableId}/reservation`, body);
 
   return (
     <ApiContext.Provider
@@ -101,8 +178,13 @@ export const ApiProvider = ({ children }: { children?: React.ReactNode }) => {
         editRestaurant,
         login,
         getTables,
+        getTable,
         removeTable,
         addTable,
+        getRestaurantsReservations,
+        getTableReservations,
+        removeReservation,
+        addReservation,
       }}
     >
       {children}

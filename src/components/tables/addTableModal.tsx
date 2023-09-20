@@ -1,4 +1,4 @@
-import { ApiContext, Restaurant, Timeframe } from "@/contexts/api";
+import { ApiContext } from "@/contexts/api";
 import { IdentityContext } from "@/contexts/identity";
 import {
   Button,
@@ -10,12 +10,9 @@ import {
   ModalBody,
   ModalFooter,
   Heading,
-  Box,
-  Flex,
   Input,
 } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
-import { week } from "./index";
 
 type Props = {
   onClose: (forceReload?: boolean) => Promise<void>;
@@ -23,11 +20,11 @@ type Props = {
 
 const nameIsInvalid = (str: string) => str.length < 2;
 
-const DeleteConfirmation = ({ onClose }: Props) => {
+const AddTableModal = ({ onClose }: Props) => {
   const { addTable } = useContext(ApiContext);
   const { userData } = useContext(IdentityContext);
   const [modalData, setModalData] = useState<{ name: string }>({ name: "" });
-  const [isSubmiting, setIsSubmitting] = useState(false);
+  const [isSubmiting, setIsSubmiting] = useState(false);
   const isFormInValid = nameIsInvalid(modalData.name);
 
   return (
@@ -55,12 +52,10 @@ const DeleteConfirmation = ({ onClose }: Props) => {
             colorScheme={isFormInValid ? "gray" : "blue"}
             mr={3}
             onClick={async () => {
-              // if (isFormInValid) {
-              setIsSubmitting(true);
+              setIsSubmiting(true);
               const { name } = modalData;
               await addTable(userData!.restaurantOrigin);
               onClose(true);
-              // }
             }}
             disabled={isFormInValid}
             isLoading={isSubmiting}
@@ -89,4 +84,4 @@ const DeleteConfirmation = ({ onClose }: Props) => {
   );
 };
 
-export default DeleteConfirmation;
+export default AddTableModal;

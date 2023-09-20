@@ -1,10 +1,10 @@
 "use client";
 
 import { ApiContext, Restaurant, Table, WorkingHours } from "@/contexts/api";
-import { IdentityContext } from "@/contexts/identity";
-import { DeleteIcon } from "@chakra-ui/icons";
+import { Identity, IdentityContext } from "@/contexts/identity";
+import { DeleteIcon, CalendarIcon } from "@chakra-ui/icons";
+import { useRouter } from "next/navigation";
 import {
-  Heading,
   Avatar,
   Box,
   Center,
@@ -19,7 +19,6 @@ import {
   TableCaption,
   TableContainer,
   Tbody,
-  Td,
   Tfoot,
   Th,
   Thead,
@@ -30,16 +29,6 @@ import { useContext, useEffect, useState } from "react";
 import DeleteConfirmation from "./deleteTableModal";
 import AddTableModal from "./addTableModal";
 
-export const week: Array<keyof WorkingHours> = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
-];
-
 const TableHeading = () => (
   <Tr>
     <Th>#</Th>
@@ -48,32 +37,38 @@ const TableHeading = () => (
   </Tr>
 );
 
-export default function Restaurant() {
+const Tables = ({ userData }: { userData: Identity }) => {
+  const { push } = useRouter();
+
   const { getTables } = useContext(ApiContext);
-  const { userData } = useContext(IdentityContext);
+
   const [tables, setTables] = useState<Table[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const [deletionTarget, setDeletionTarget] = useState<string | undefined>(
     undefined
   );
-  const [addTableModalIsOpen, setAddTableModalIsOpen] = useState<boolean>(false);
+  const [addTableModalIsOpen, setAddTableModalIsOpen] =
+    useState<boolean>(false);
 
   useEffect(() => {
-    if (userData) {
-      getTables(userData.restaurantOrigin).then((data) => {
-        setTables(data);
-      });
-    }
-  }, [userData]);
+    setIsLoading(true);
+    getTables(userData.restaurantOrigin).then((data) => {
+      setTables(data);
+      setIsLoading(false);
+    });
+  }, [getTables, userData.restaurantOrigin]);
 
-  return tables ? (
+  return (
     <Center py={6} display={"flex"} flexDirection={"column"}>
       {addTableModalIsOpen && (
         <AddTableModal
           onClose={async (forceReload?: boolean) => {
             if (forceReload) {
+              !isLoading && setIsLoading(true);
               const data = await getTables(userData!.restaurantOrigin);
               setTables(data);
+              setIsLoading(false);
             }
             setAddTableModalIsOpen(false);
           }}
@@ -84,8 +79,10 @@ export default function Restaurant() {
           tableId={deletionTarget}
           onClose={async (forceReload?: boolean) => {
             if (forceReload) {
+              !isLoading && setIsLoading(true);
               const data = await getTables(userData!.restaurantOrigin);
               setTables(data);
+              setIsLoading(false);
             }
             setDeletionTarget(undefined);
           }}
@@ -133,9 +130,9 @@ export default function Restaurant() {
                 <Tbody>
                   {tables.map((t, i) => {
                     return (
-                      <Tr>
+                      <Tr key={i}>
                         <Th>{i + 1}</Th>
-                        <Th>{t.id}</Th>
+                        <Th>{t.name}</Th>
                         <Th>
                           <IconButton
                             variant="outline"
@@ -150,11 +147,23 @@ export default function Restaurant() {
                               />
                             }
                           />
+                          <IconButton
+                            variant="outline"
+                            colorScheme="teal"
+                            aria-label="Delete the table"
+                            fontSize="20px"
+                            margin={"5px"}
+                            onClick={() => {
+                              push(`/table/${t.id}/reservations`);
+                            }}
+                            icon={<CalendarIcon />}
+                          />
                         </Th>
                       </Tr>
                     );
                   })}
                 </Tbody>
+
                 <Tfoot>
                   <TableHeading />
                 </Tfoot>
@@ -163,9 +172,9 @@ export default function Restaurant() {
           </Stack>
           <Button
             marginTop={"15px"}
-            maxW={"120px"}
+            maxW={"140px"}
             mt={8}
-            bg={useColorModeValue("#151f21", "gray.900")}
+            bg={"#151f21"}
             color={"white"}
             rounded={"md"}
             _hover={{
@@ -179,23 +188,7 @@ export default function Restaurant() {
         </Flex>
       </Box>
     </Center>
-  ) : (
-    <Stack padding={4} spacing={1}>
-      <Skeleton height="40px" isLoaded={false}></Skeleton>
-      <Skeleton
-        height="40px"
-        isLoaded={false}
-        bg="green.500"
-        color="white"
-        fadeDuration={1}
-      ></Skeleton>
-      <Skeleton
-        height="40px"
-        isLoaded={false}
-        fadeDuration={4}
-        bg="blue.500"
-        color="white"
-      ></Skeleton>
-    </Stack>
   );
-}
+};
+
+export default Tables;

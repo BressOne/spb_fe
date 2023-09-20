@@ -1,7 +1,7 @@
 "use client";
 
-import { ApiContext, Restaurant, WorkingHours } from "@/contexts/api";
-import { IdentityContext } from "@/contexts/identity";
+import { ApiContext, Restaurant, week, WorkingHours } from "@/contexts/api";
+import { Identity, IdentityContext } from "@/contexts/identity";
 import {
   Heading,
   Avatar,
@@ -12,7 +12,6 @@ import {
   Text,
   Stack,
   Button,
-  useColorModeValue,
   Skeleton,
   Table,
   TableCaption,
@@ -26,16 +25,6 @@ import {
 } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
 import RestaurantModal from "./editRestaurantModal";
-
-export const week: Array<keyof WorkingHours> = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
-];
 
 const TableHeading = () => (
   <Tr>
@@ -58,19 +47,21 @@ const getOpenHoursList = (rest: Restaurant) => {
   });
 };
 
-export default function Restaurant() {
+const Restaurant = ({ userData }: { userData: Identity }) => {
   const { getRestaurant } = useContext(ApiContext);
-  const { userData } = useContext(IdentityContext);
   const [rest, setRest] = useState<Restaurant | undefined>(undefined);
   const [editModalIsOpen, setEditModalIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (userData) {
-      getRestaurant(userData.restaurantOrigin).then((data) => {
-        setRest(data ? data : undefined);
-      });
-    }
-  }, [userData]);
+    const getRestaurants = async () => {
+      const data = await getRestaurant(
+        userData ? userData.restaurantOrigin : ""
+      );
+      setRest(data ? data : undefined);
+    };
+
+    getRestaurants();
+  }, []);
 
   return rest ? (
     <Center py={6} display={"flex"} flexDirection={"column"}>
@@ -88,7 +79,7 @@ export default function Restaurant() {
       )}
       <Box
         w={"full"}
-        bg={useColorModeValue("white", "gray.800")}
+        bg={"white"}
         boxShadow={"2xl"}
         rounded={"md"}
         overflow={"hidden"}
@@ -152,7 +143,7 @@ export default function Restaurant() {
             marginTop={"15px"}
             maxW={"120px"}
             mt={8}
-            bg={useColorModeValue("#151f21", "gray.900")}
+            bg={"#151f21"}
             color={"white"}
             rounded={"md"}
             _hover={{
@@ -185,4 +176,6 @@ export default function Restaurant() {
       ></Skeleton>
     </Stack>
   );
-}
+};
+
+export default Restaurant;
