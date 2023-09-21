@@ -162,7 +162,7 @@ const Tables = ({ userData }: { userData: Identity }) => {
                               boxShadow: "lg",
                             }}
                             onClick={() => {
-                              push(`/table/${t.id}/reservations`);
+                              push(`/tables/${t.id}/reservations`);
                             }}
                             icon={<CalendarIcon />}
                           />
