@@ -66,7 +66,8 @@ export const ApiContext = React.createContext<{
   }: {
     username: string;
     password: string;
-  }) => Promise<any>;
+  }) => Promise<{ token: string }>;
+  introspect: () => Promise<{ allowed: boolean }>;
   getTables: (id: string) => Promise<Table[]>;
   getTable: (tableId: string, restaurantId: string) => Promise<Table | null>;
   removeTable: (tableId: string, restaurantId: string) => Promise<Table | null>;
@@ -94,7 +95,8 @@ export const ApiContext = React.createContext<{
   getTable: () => new Promise((resolve) => resolve(null)),
   removeTable: () => new Promise((resolve) => resolve(null)),
   addTable: () => new Promise((resolve) => resolve(null)),
-  login: () => new Promise((resolve) => resolve(null)),
+  login: () => new Promise((resolve) => resolve({ token: "string" })),
+  introspect: () => new Promise((resolve) => resolve({ allowed: false })),
   getRestaurantsReservations: () => new Promise((resolve) => resolve([])),
   getTableReservations: () => new Promise((resolve) => resolve([])),
   removeReservation: () => new Promise((resolve) => resolve(null)),
@@ -106,6 +108,15 @@ export const ApiProvider = ({ children }: { children?: React.ReactNode }) => {
     validateStatus: (status) => Math.trunc(status / 100) === 2,
   });
 
+  const getOptionsHeaders = (supressAuth?: boolean) => {
+    const ctx = window.localStorage.getItem("context");
+    const headers: Record<string, string> = {};
+    if (ctx && !supressAuth) {
+      headers.authorization = ctx;
+    }
+    return headers;
+  };
+
   const handleError = (promise = Promise.resolve()): Promise<any> =>
     promise.catch((error) => {
       const err = error.toJSON();
@@ -113,23 +124,35 @@ export const ApiProvider = ({ children }: { children?: React.ReactNode }) => {
     });
 
   const get = async (path: string) => {
-    const { data } = await handleError(instance.get(`${API_URL}${path}`));
-    return data;
-  };
-  const post = async (path: string, args: any) => {
     const { data } = await handleError(
-      instance.post(`${API_URL}${path}`, args)
+      instance.get(`${API_URL}${path}`, { headers: getOptionsHeaders() })
     );
     return data;
   };
-  const patch = async (path: string, args: any) => {
+  const post = async (
+    path: string,
+    body: any,
+    supressAuth: boolean = false
+  ) => {
     const { data } = await handleError(
-      instance.patch(`${API_URL}${path}`, args)
+      instance.post(`${API_URL}${path}`, body, {
+        headers: getOptionsHeaders(supressAuth),
+      })
+    );
+    return data;
+  };
+  const patch = async (path: string, body: any) => {
+    const { data } = await handleError(
+      instance.patch(`${API_URL}${path}`, body, {
+        headers: getOptionsHeaders(),
+      })
     );
     return data;
   };
   const remove = async (path: string) => {
-    const { data } = await handleError(instance.delete(`${API_URL}${path}`));
+    const { data } = await handleError(
+      instance.delete(`${API_URL}${path}`, { headers: getOptionsHeaders() })
+    );
     return data;
   };
 
@@ -139,7 +162,9 @@ export const ApiProvider = ({ children }: { children?: React.ReactNode }) => {
   }: {
     username: string;
     password: string;
-  }) => post("/login", { username, password });
+  }) => post("/login", { username, password }, true);
+  const introspect = (): Promise<{ allowed: boolean }> =>
+    post("/introspect", {});
   const getRestaurant = (restaurantId: string) =>
     get(`/restaurant/${restaurantId}`);
   const getTables = (restaurantId: string) =>
@@ -174,13 +199,17 @@ export const ApiProvider = ({ children }: { children?: React.ReactNode }) => {
   return (
     <ApiContext.Provider
       value={{
+        login,
+        introspect,
+
         getRestaurant,
         editRestaurant,
-        login,
+
         getTables,
         getTable,
         removeTable,
         addTable,
+
         getRestaurantsReservations,
         getTableReservations,
         removeReservation,

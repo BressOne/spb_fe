@@ -94,6 +94,30 @@ const AddReservationModal = ({
   });
   const [isSubmiting, setIsSubmiting] = useState(false);
 
+  const onSave = async () => {
+    if (isFormInValid(modalData)) {
+      return;
+    }
+    setIsSubmiting(true);
+    const startDate = new Date(modalData.day!);
+    startDate.setUTCHours(modalData.reservationStartHour!, 0, 0, 0);
+
+    const endDate = new Date(modalData.day!);
+    endDate.setUTCHours(modalData.reservationStartHour! + 1, 0, 0, 0);
+
+    const body: Pick<Reservation, "guestName" | "meta"> = {
+      guestName: modalData.guestName!,
+      meta: {
+        personsToServe: modalData.personsToServe!,
+        startTime: startDate,
+        endTime: endDate,
+        notes: modalData.notes,
+      },
+    };
+    await addReservation(modalData.tableId!, restaurant.id, body);
+    onClose(true);
+  };
+
   return (
     <Modal isOpen={true} onClose={() => onClose(false)}>
       <ModalOverlay />
@@ -215,29 +239,7 @@ const AddReservationModal = ({
           <Button
             colorScheme={isFormInValid(modalData) ? "gray" : "blue"}
             mr={3}
-            onClick={async () => {
-              if (isFormInValid(modalData)) {
-                return;
-              }
-              setIsSubmiting(true);
-              const startDate = new Date(modalData.day!);
-              startDate.setUTCHours(modalData.reservationStartHour!, 0, 0, 0);
-
-              const endDate = new Date(modalData.day!);
-              endDate.setUTCHours(modalData.reservationStartHour! + 1, 0, 0, 0);
-
-              const body: Pick<Reservation, "guestName" | "meta"> = {
-                guestName: modalData.guestName!,
-                meta: {
-                  personsToServe: modalData.personsToServe!,
-                  startTime: startDate,
-                  endTime: endDate,
-                  notes: modalData.notes,
-                },
-              };
-              await addReservation(modalData.tableId!, restaurant.id, body);
-              onClose(true);
-            }}
+            onClick={onSave}
             disabled={isFormInValid(modalData)}
             isLoading={isSubmiting}
             _hover={{
@@ -253,6 +255,7 @@ const AddReservationModal = ({
             variant="ghost"
             onClick={() => onClose(false)}
             _hover={{
+              bg: "blackAlpha.200",
               transform: "translateY(-2px)",
               boxShadow: "lg",
             }}

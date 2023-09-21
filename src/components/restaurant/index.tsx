@@ -143,10 +143,11 @@ const Restaurant = ({ userData }: { userData: Identity }) => {
             marginTop={"15px"}
             maxW={"120px"}
             mt={8}
-            bg={"#151f21"}
+            bg={"gray"}
             color={"white"}
             rounded={"md"}
             _hover={{
+              bg: "blackAlpha.200",
               transform: "translateY(-2px)",
               boxShadow: "lg",
             }}

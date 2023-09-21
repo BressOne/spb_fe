@@ -27,7 +27,7 @@ import { createTheme } from "@mui/material/styles";
 import { ThemeProvider } from "@mui/system";
 import { ApiContext, Restaurant, Table } from "@/contexts/api";
 import { Identity } from "@/contexts/identity";
-import { Flex, Heading, Button, useColorModeValue } from "@chakra-ui/react";
+import { Flex, Heading, Button } from "@chakra-ui/react";
 import { connectProps } from "@devexpress/dx-react-core";
 import Paper from "@mui/material/Paper";
 import AddReservationModal from "./AddReservationModal";
@@ -72,8 +72,8 @@ const Schedule = ({
     {
       fieldName: "tableId",
       title: "Tables",
-      instances: getAllInstances(tables).filter(
-        (i) => tableId ? i.id === tableId : true
+      instances: getAllInstances(tables).filter((i) =>
+        tableId ? i.id === tableId : true
       ),
     },
   ]);
@@ -170,10 +170,11 @@ const Schedule = ({
           maxW={"380px"}
           mt={8}
           p={4}
-          bg={useColorModeValue("#151f21", "gray.900")}
+          bg={"black"}
           color={"white"}
           rounded={"md"}
           _hover={{
+            bg: "blackAlpha.200",
             transform: "translateY(-2px)",
             boxShadow: "lg",
           }}

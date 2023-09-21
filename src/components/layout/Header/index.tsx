@@ -9,38 +9,39 @@ export default function WithSubnavigation() {
   const { destroyUser, userData } = useContext(IdentityContext);
 
   return userData ? (
-    <Box>
-      <Flex
-        minH={"60px"}
-        align={"center"}
-        display={"flex"}
-        justifyContent={"space-between"}
-      >
-        <Flex display={"flex"} justify={{ md: "start" }}>
-          <Flex display={{ md: "flex" }} ml={10}>
-            <DesktopNav />
-          </Flex>
+    <Flex
+      minH={"60px"}
+      align={"center"}
+      display={"flex"}
+      justifyContent={"space-between"}
+      m={1}
+    >
+      <Flex display={"flex"} justify={{ md: "start" }}>
+        <Flex display={{ md: "flex" }} ml={10}>
+          <DesktopNav />
         </Flex>
-
-        <Stack
-          flex={{ base: 1, md: 0 }}
-          justify={"flex-end"}
-          direction={"row"}
-          spacing={6}
-        >
-          <Button
-            as={"a"}
-            fontSize={"sm"}
-            fontWeight={400}
-            variant={"link"}
-            href={"#"}
-            onClick={() => destroyUser()}
-          >
-            Log out
-          </Button>
-        </Stack>
       </Flex>
-    </Box>
+
+      <Stack
+        flex={{ base: 1, md: 0 }}
+        justify={"flex-end"}
+        direction={"row"}
+        spacing={6}
+      >
+        <Button
+          fontSize={"sm"}
+          fontWeight={400}
+          onClick={() => destroyUser()}
+          _hover={{
+            cursor: "pointer",
+            transform: "translateY(-2px)",
+            bg: "blackAlpha.200",
+          }}
+        >
+          Log out
+        </Button>
+      </Stack>
+    </Flex>
   ) : null;
 }
 
@@ -55,9 +56,6 @@ const DesktopNav = () => {
             href={navItem.href ?? "#"}
             fontSize={"sm"}
             fontWeight={500}
-            _hover={{
-              textDecoration: "none",
-            }}
           >
             {navItem.label}
           </Box>

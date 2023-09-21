@@ -1,16 +1,16 @@
 "use client";
 
+import { ReactNode, useContext } from "react";
 import {
   Box,
   chakra,
   Container,
   Stack,
   Text,
-  useColorModeValue,
   VisuallyHidden,
 } from "@chakra-ui/react";
 import { FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
-import { ReactNode } from "react";
+import { IdentityContext } from "@/contexts/identity";
 
 const Logo = (props: any) => {
   return (
@@ -43,7 +43,7 @@ const SocialButton = ({
 }) => {
   return (
     <chakra.button
-      bg={useColorModeValue("blackAlpha.100", "whiteAlpha.100")}
+      bg={"blackAlpha.100"}
       rounded={"full"}
       w={8}
       h={8}
@@ -55,7 +55,8 @@ const SocialButton = ({
       justifyContent={"center"}
       transition={"background 0.3s ease"}
       _hover={{
-        bg: useColorModeValue("blackAlpha.200", "whiteAlpha.200"),
+        bg: "blackAlpha.200",
+        transform: "translateY(-2px)",
       }}
     >
       <VisuallyHidden>{label}</VisuallyHidden>
@@ -64,13 +65,11 @@ const SocialButton = ({
   );
 };
 
-export default () => {
-  return (
-    <Box
-      bg={useColorModeValue("gray.50", "gray.900")}
-      color={useColorModeValue("gray.700", "gray.200")}
-      height={"64px"}
-    >
+const Footer = () => {
+  const { userData } = useContext(IdentityContext);
+
+  return userData ? (
+    <Box bg={"gray.50"} color={"gray.700"} height={"64px"}>
       <Container
         as={Stack}
         maxW={"6xl"}
@@ -95,5 +94,7 @@ export default () => {
         </Stack>
       </Container>
     </Box>
-  );
+  ) : null;
 };
+
+export default Footer;

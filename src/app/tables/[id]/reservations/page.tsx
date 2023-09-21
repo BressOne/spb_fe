@@ -1,16 +1,17 @@
 "use client";
 import { useContext } from "react";
 import { useParams } from "next/navigation";
-import Tables from "@/components/table";
+import Reservations from "@/components/reservations";
 import { IdentityContext } from "@/contexts/identity";
+import FullScreenSpinner from "@/components/layout/Spinner";
 
 const Page = () => {
   const { userData } = useContext(IdentityContext);
   const params = useParams();
   return userData ? (
-    <Tables userData={userData} tableId={params.id as string} />
+    <Reservations userData={userData} tableId={params.id as string} />
   ) : (
-    <></>
+    <FullScreenSpinner />
   );
 };
 

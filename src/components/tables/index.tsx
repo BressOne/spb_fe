@@ -13,8 +13,6 @@ import {
   Text,
   Stack,
   Button,
-  useColorModeValue,
-  Skeleton,
   Table as TableComponent,
   TableCaption,
   TableContainer,
@@ -90,7 +88,7 @@ const Tables = ({ userData }: { userData: Identity }) => {
       )}
       <Box
         w={"full"}
-        bg={useColorModeValue("white", "gray.800")}
+        bg={"white"}
         boxShadow={"2xl"}
         rounded={"md"}
         overflow={"hidden"}
@@ -136,9 +134,14 @@ const Tables = ({ userData }: { userData: Identity }) => {
                         <Th>
                           <IconButton
                             variant="outline"
-                            colorScheme="teal"
+                            colorScheme="red"
                             aria-label="Delete the table"
                             fontSize="20px"
+                            _hover={{
+                              bg: "blackAlpha.200",
+                              transform: "translateY(-2px)",
+                              boxShadow: "lg",
+                            }}
                             icon={
                               <DeleteIcon
                                 onClick={() => {
@@ -149,10 +152,15 @@ const Tables = ({ userData }: { userData: Identity }) => {
                           />
                           <IconButton
                             variant="outline"
-                            colorScheme="teal"
+                            colorScheme="black"
                             aria-label="Delete the table"
                             fontSize="20px"
                             margin={"5px"}
+                            _hover={{
+                              bg: "blackAlpha.200",
+                              transform: "translateY(-2px)",
+                              boxShadow: "lg",
+                            }}
                             onClick={() => {
                               push(`/table/${t.id}/reservations`);
                             }}
@@ -174,10 +182,11 @@ const Tables = ({ userData }: { userData: Identity }) => {
             marginTop={"15px"}
             maxW={"140px"}
             mt={8}
-            bg={"#151f21"}
+            bg={"black"}
             color={"white"}
             rounded={"md"}
             _hover={{
+              bg: "blackAlpha.200",
               transform: "translateY(-2px)",
               boxShadow: "lg",
             }}

@@ -11,7 +11,7 @@ const breakpoints = {
 };
 
 const styleguideColors = {
-  gray100: "#EDF2F7",
+  gray: "#EDF2F7",
   gray200: "#E2E8F0",
   gray300: "#CBD5E0",
   gray400: "#A0AEC0",
@@ -47,7 +47,7 @@ const brandColors = {
   },
 
   bgChecked: styleguideColors.gray300,
-  bgHover: styleguideColors.gray100,
+  bgHover: styleguideColors.gray,
 
   accent: styleguideColors._main,
   inactiveText: "grey",

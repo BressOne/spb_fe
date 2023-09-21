@@ -47,6 +47,7 @@ const DeleteConfirmation = ({ onClose, tableId }: Props) => {
             }}
             isLoading={isSubmiting}
             _hover={{
+              bg: "blackAlpha.200",
               transform: "translateY(-2px)",
               boxShadow: "lg",
             }}
@@ -58,6 +59,7 @@ const DeleteConfirmation = ({ onClose, tableId }: Props) => {
             variant="ghost"
             onClick={() => onClose(false)}
             _hover={{
+              bg: "blackAlpha.200",
               transform: "translateY(-2px)",
               boxShadow: "lg",
             }}

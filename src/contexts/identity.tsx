@@ -1,18 +1,23 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import jwt from "jsonwebtoken";
+import { ApiContext } from "./api";
 
 export type Identity = {
+  id: string;
+  username: string;
   restaurantOrigin: string;
 };
 
 export const IdentityContext = React.createContext<{
   userData: Identity | undefined;
-  setUserData: (data: Identity) => void;
   destroyUser: () => void;
+  applyLogin: (token: string) => void;
 }>({
   userData: undefined,
-  setUserData: () => {},
   destroyUser: () => {},
+  applyLogin: () => {},
 });
 
 export const IdentityProvider = ({
@@ -21,20 +26,32 @@ export const IdentityProvider = ({
   children?: React.ReactNode;
 }) => {
   const [data, setData] = useState<Identity | undefined>(undefined);
+  const { introspect } = useContext(ApiContext);
+  const { push } = useRouter();
 
-  const setUserData = (data: Identity) => {
+  const setUserData = (data: Identity, token: string) => {
     setData(data);
-    window.localStorage.setItem("context", data.restaurantOrigin);
+    window.localStorage.setItem("context", token);
   };
   const destroyUser = () => {
     setData(undefined);
     window.localStorage.removeItem("context");
+    push("/");
+  };
+
+  const applyLogin = async (token: string) => {
+    const decoded = jwt.decode(token) as Identity & jwt.JwtPayload;
+    setUserData(decoded, token);
   };
 
   useEffect(() => {
     const ctx = window.localStorage.getItem("context");
     if (ctx) {
-      setData({ restaurantOrigin: ctx });
+      introspect().then((response) => {
+        response.allowed && applyLogin(ctx);
+      });
+    } else {
+      destroyUser();
     }
   }, []);
 
@@ -42,8 +59,8 @@ export const IdentityProvider = ({
     <IdentityContext.Provider
       value={{
         userData: data,
-        setUserData,
         destroyUser,
+        applyLogin,
       }}
     >
       {children}

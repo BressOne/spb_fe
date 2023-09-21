@@ -12,7 +12,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { ApiContext } from "@/contexts/api";
-import { Identity, IdentityContext } from "@/contexts/identity";
+import { IdentityContext } from "@/contexts/identity";
 import { redirect } from "next/navigation";
 import { isAxiosError } from "axios";
 
@@ -20,7 +20,7 @@ type Credentials<T = string> = { username: T; password: T };
 
 export default function Login() {
   const { login } = useContext(ApiContext);
-  const { setUserData, userData } = useContext(IdentityContext);
+  const { userData, applyLogin } = useContext(IdentityContext);
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
   const [loginError, setLoginError] = useState<string | undefined>(undefined);
   const [creds, setCreds] = useState<Credentials<string | undefined>>({
@@ -55,12 +55,12 @@ export default function Login() {
         <FormControl id="email" isRequired>
           <FormLabel>Username</FormLabel>
           <Input
-            borderColor={Boolean(loginError) ? "red" : "grey"}
+            borderColor={Boolean(loginError) ? "red" : "gray"}
             onChange={(e) => {
               setLoginError(undefined);
               setCreds((prev) => ({ ...prev, username: e.target.value }));
             }}
-            placeholder="your-email@example.com"
+            placeholder="your username"
             _placeholder={{ color: "gray.500" }}
             type="email"
           />
@@ -68,7 +68,7 @@ export default function Login() {
         <FormControl id="password" isRequired>
           <FormLabel>Password</FormLabel>
           <Input
-            borderColor={Boolean(loginError) ? "red" : "grey"}
+            borderColor={Boolean(loginError) ? "red" : "gray"}
             onChange={(e) => {
               setLoginError(undefined);
               setCreds((prev) => ({ ...prev, password: e.target.value }));
@@ -80,7 +80,7 @@ export default function Login() {
           {loginError && <Text color="red">{loginError}</Text>}{" "}
           <Button
             colorScheme={isFormInValid ? "gray" : "blue"}
-            mr={3}
+            w={"400px"}
             disabled={isFormInValid}
             isLoading={isSubmiting}
             _hover={{
@@ -92,8 +92,11 @@ export default function Login() {
               setIsSubmiting(true);
               try {
                 const { username, password } = creds;
-                const data = await login({ username, password });
-                // setUserData(data as Identity);
+                const data = await login({
+                  username: username!,
+                  password: password!,
+                });
+                applyLogin(data.token);
               } catch (error) {
                 if (isAxiosError(error) && error.status === 403) {
                   setLoginError("Incorrect username and or password");

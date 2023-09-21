@@ -11,11 +11,11 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
     <CacheProvider>
       <ThemeProvider theme={theme}>
         <CSSReset />
-        <IdentityProvider>
-          <ApiProvider>
+        <ApiProvider>
+          <IdentityProvider>
             <ChakraProvider>{children}</ChakraProvider>
-          </ApiProvider>
-        </IdentityProvider>
+          </IdentityProvider>
+        </ApiProvider>
       </ThemeProvider>
     </CacheProvider>
   );

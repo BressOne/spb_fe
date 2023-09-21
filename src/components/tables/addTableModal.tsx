@@ -60,7 +60,7 @@ const AddTableModal = ({ onClose }: Props) => {
             disabled={isFormInValid}
             isLoading={isSubmiting}
             _hover={{
-              cursor: isFormInValid ? "not-allowed" : "pointer",
+              bg: "blackAlpha.200",
               transform: "translateY(-2px)",
               boxShadow: "lg",
             }}
@@ -72,6 +72,7 @@ const AddTableModal = ({ onClose }: Props) => {
             variant="ghost"
             onClick={() => onClose(false)}
             _hover={{
+              bg: "blackAlpha.200",
               transform: "translateY(-2px)",
               boxShadow: "lg",
             }}
