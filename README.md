@@ -4,6 +4,16 @@
 
 This repository contains an example implementation of a restaurant table reservation UI using ReactJS.
 
+App is running and can be accessed here:
+|artefact| url |
+|--|--|
+| UI | https://spb-fe-app.onrender.com |
+| API | https://spb-Be-app.onrender.com |
+
+Use admin/admin creds to login.
+
+Happy use!
+
 ## FE part
 
 Provided exercise is an example implementation of UI based on NextJs + ReactJS+ChakraUI. This UI app operates over restaurant API provided in https://github.com/BressOne/spb_be.
@@ -62,13 +72,12 @@ My default dev config is:
 
 UI is actually sipmle. There are 4 (formally 3) pages served on different uris.
 
-
-| route | description |
-| - | - | 
-| / | login screen of the app. Use admin/admin if you are running API with DB propagated with demo data. |
-| /restaurant | The restaurant info. The user has one-to-one relation with a restaurant, so it is semantically equals to the user context. On the page you can see and edin restaurants name and open hours. Due to some limitations we assume working hours are required for each week day. Restaurants time offset is not well implemented feature, but was tend to allow to het through difficulties setting up reservations for restaurant, when the manager does that being in different time band (offset) |
+| route         | description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| /             | login screen of the app. Use admin/admin if you are running API with DB propagated with demo data.                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| /restaurant   | The restaurant info. The user has one-to-one relation with a restaurant, so it is semantically equals to the user context. On the page you can see and edin restaurants name and open hours. Due to some limitations we assume working hours are required for each week day. Restaurants time offset is not well implemented feature, but was tend to allow to het through difficulties setting up reservations for restaurant, when the manager does that being in different time band (offset)                                              |
 | /reservations | Is a schedule like table. That shows past and future reservations for each table in its own subSchedule. You cah switch view to see week reservations or day reservations, you can navigate over calendar, yopu can set up filter to see reservations for particular table. you can delete existing reservation by clicking on it in schedule and clicking on a bin icon in the popup. Confirm window will appear. By clicking on add new Reservation button you will be able to add a new reservation for some guest. Form is pretty simple. |
-| /tables | Simple list of existing tables. You can create a new table by clicking on button and specifying a name for the table. You can delete a table by clicking on a bin near the tables name. Note, that all table reservations assigned for the table will be deleted too. By cliscking schedule button near a tables name you will be redirected to the tables schedule. Formally it is a /reservations route with filter applied.                                                                                                         |     |
+| /tables       | Simple list of existing tables. You can create a new table by clicking on button and specifying a name for the table. You can delete a table by clicking on a bin near the tables name. Note, that all table reservations assigned for the table will be deleted too. By cliscking schedule button near a tables name you will be redirected to the tables schedule. Formally it is a /reservations route with filter applied.                                                                                                                |     |
 
 ## Features
 
