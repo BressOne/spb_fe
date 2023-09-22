@@ -1,7 +1,7 @@
 "use client";
 
-import { ApiContext, Restaurant, week, WorkingHours } from "@/contexts/api";
-import { Identity, IdentityContext } from "@/contexts/identity";
+import { ApiContext, Restaurant, week } from "@/contexts/api";
+import { Identity } from "@/contexts/identity";
 import {
   Heading,
   Avatar,
