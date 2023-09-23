@@ -1,17 +1,15 @@
 FROM node:18.17.1-alpine3.18
 
-RUN mkdir -p /usr/src
-WORKDIR /usr/src
+WORKDIR /app
 
-COPY . /usr/src
-
-COPY package*.json ./
+COPY package*.json yarn.lock ./
 
 RUN yarn
 
-RUN yarn build
-
 COPY . .
 
+RUN yarn build
+
 EXPOSE 3000
-CMD yarn start
+
+CMD ["yarn", "start"]
