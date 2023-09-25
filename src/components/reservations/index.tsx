@@ -25,7 +25,7 @@ import {
 } from "@devexpress/dx-react-scheduler-material-ui";
 import { createTheme } from "@mui/material/styles";
 import { ThemeProvider } from "@mui/system";
-import { ApiContext, Restaurant, Table } from "@/contexts/api";
+import { ApiContext, Restaurant, Table, Timeframe } from "@/contexts/api";
 import { Identity } from "@/contexts/identity";
 import { Flex, Heading, Button } from "@chakra-ui/react";
 import { connectProps } from "@devexpress/dx-react-core";
@@ -47,6 +47,17 @@ const grouping = [
     resourceName: "tableId",
   },
 ];
+
+const getMinStartMaxEndHours = (restaurant: Restaurant) =>
+  Object.values(restaurant.workingHours).reduce(
+    (acc, curr) => {
+      return {
+        start: Math.min(acc.start, Number.parseInt(curr.start, 10)),
+        end: Math.min(acc.end, Number.parseInt(curr.end, 10)),
+      };
+    },
+    { start: 23, end: 23 }
+  );
 
 const Schedule = ({
   userData,
@@ -148,6 +159,8 @@ const Schedule = ({
     setAddModalIsOpen(false);
   };
 
+  const minMaxWorkingHoursSchedule = getMinStartMaxEndHours(restaurant);
+
   return (
     <>
       {addModalIsOpen && (
@@ -201,8 +214,14 @@ const Schedule = ({
               <GroupingState grouping={grouping} />
               <EditingState onCommitChanges={commitChanges} />
               <IntegratedEditing />
-              <DayView />
-              <WeekView />
+              <DayView
+                startDayHour={minMaxWorkingHoursSchedule.start}
+                endDayHour={minMaxWorkingHoursSchedule.end}
+              />
+              <WeekView
+                startDayHour={minMaxWorkingHoursSchedule.start}
+                endDayHour={minMaxWorkingHoursSchedule.end}
+              />
               <ConfirmationDialog />
               <Appointments />
               <Resources data={resources} palette={[]} />

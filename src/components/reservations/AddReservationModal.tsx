@@ -4,8 +4,6 @@ import {
   Restaurant,
   Table,
   Timeframe,
-  week,
-  WorkingHours,
 } from "@/contexts/api";
 import { Identity } from "@/contexts/identity";
 import {
@@ -23,6 +21,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
+import { getRestaurantsWorkingHours } from "./utills";
 
 type Props = {
   onClose: (forceReload?: boolean) => Promise<void>;
@@ -30,15 +29,6 @@ type Props = {
   tables: Table[];
   currentTableId: string | undefined;
   restaurant: Restaurant;
-};
-
-const getRestaurantsWorkingHours = (
-  day: Date,
-  restaurantworkingHours: WorkingHours
-) => {
-  const dayIndex = day.getDay();
-  const dayName = week[dayIndex];
-  return restaurantworkingHours[dayName];
 };
 
 const getHoursOptions = (timeframe: Timeframe) => {
@@ -105,8 +95,9 @@ const AddReservationModal = ({
     const endDate = new Date(modalData.day!);
     endDate.setUTCHours(modalData.reservationStartHour! + 1, 0, 0, 0);
 
-    const body: Pick<Reservation, "guestName" | "meta"> = {
+    const body: Omit<Reservation, "id"> = {
       guestName: modalData.guestName!,
+      tableId: modalData.tableId!,
       meta: {
         personsToServe: modalData.personsToServe!,
         startTime: startDate,

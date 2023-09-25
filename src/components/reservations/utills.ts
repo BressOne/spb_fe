@@ -1,4 +1,4 @@
-import { Reservation, Table } from "@/contexts/api";
+import { Reservation, Table, week, WorkingHours } from "@/contexts/api";
 import { Instance, TableReservation } from "./types";
 
 export const stringToColour = (str: string) => {
@@ -22,21 +22,36 @@ export const getAllInstances = (tables: Table[]): Instance[] => [
   })),
 ];
 
+const getTZAdjustedDate = (date: Date): Date => {
+  const browsersTimezoneOffset = new Date().getTimezoneOffset() / 60;
+  const dateClone = new Date(date);
+  dateClone.setHours(dateClone.getHours() + browsersTimezoneOffset);
+  return dateClone;
+};
+
 const mapReservations = (
   reservations: Reservation[],
   table: Table,
   restaurantId: string
 ) => {
-  return reservations.map((r) => ({
-    id: r.id,
-    startDate: r.meta.startTime,
-    endDate: r.meta.endTime,
-    meta: r.meta,
-    tableId: r.tableId,
-    guestName: r.guestName,
-    restaurantId,
-    title: `${r.guestName} ${table.name}`,
-  }));
+  return reservations.map((r) => {
+    //the date adjustment is cheap - it adjustes dates to UTC to be displayed as UTC in schedule
+    const [startDate, endDate] = [
+      getTZAdjustedDate(r.meta.startTime),
+      getTZAdjustedDate(r.meta.endTime),
+    ];
+
+    return {
+      id: r.id,
+      startDate,
+      endDate,
+      meta: r.meta,
+      tableId: r.tableId,
+      guestName: r.guestName,
+      restaurantId,
+      title: `${r.guestName} ${table.name}`,
+    };
+  });
 };
 
 export const getAllReservations = (
@@ -53,3 +68,12 @@ export const getAllReservations = (
       )
     )
     .flat();
+
+export const getRestaurantsWorkingHours = (
+  day: Date,
+  restaurantworkingHours: WorkingHours
+) => {
+  const dayIndex = day.getDay();
+  const dayName = week[dayIndex];
+  return restaurantworkingHours[dayName];
+};
